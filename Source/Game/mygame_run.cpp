@@ -38,11 +38,15 @@ void collision_effect_other(CMovingBitmap& character, CMovingBitmap& other, int 
 
 void CGameStateRun::OnMove() // ���ʹC������
 {
-    collision_effect_other(character, chest_and_key, 1);
-    for (int i = 0; i < 3; i++)
-    {
-        collision_effect_other(character, door[i], 1);
-    }
+	if (phase == 3) {
+		collision_effect_other(character, chest_and_key, 1);
+	}
+	if (phase == 5) {
+		for (int i = 0; i < 3; i++)	{
+			collision_effect_other(character, door[i], 1);
+		}
+	}
+    
 }
 
 void CGameStateRun::OnInit() // �C������Ȥιϧγ]�w
@@ -63,7 +67,7 @@ void CGameStateRun::OnInit() // �C������Ȥιϧγ]�w
     });
     background.SetTopLeft(0, 0);
 
-    character.LoadBitmapByString({"resources/giraffe.bmp"}, RGB(255, 255, 255);
+    character.LoadBitmapByString({"resources/giraffe.bmp"}, RGB(255, 255, 255));
     character.SetTopLeft(150, 265);
 
     chest_and_key.LoadBitmapByString({"resources/chest.bmp", "resources/chest_ignore.bmp"}, RGB(255, 255, 255));
@@ -71,14 +75,13 @@ void CGameStateRun::OnInit() // �C������Ȥιϧγ]�w
 
     bee.LoadBitmapByString({"resources/bee_1.bmp", "resources/bee_2.bmp"});
     bee.SetTopLeft(462, 265);
-    bee.SetAnimation(1, false);
+    bee.SetAnimation(100, false);
 
     ball.LoadBitmapByString({
         "resources/ball-3.bmp", "resources/ball-2.bmp", "resources/ball-1.bmp", "resources/ball-ok.bmp"
     });
     ball.SetTopLeft(150, 430);
-    ball.SetAnimation(4, true);
-    ball.ToggleAnimation();
+    ball.SetAnimation(300, true);
 
     for (int i = 0; i < 3; i++)
     {
@@ -91,24 +94,28 @@ void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
     int top = character.Top();
     int left = character.Left();
-    if (nChar == 0x41)
+    if (nChar == VK_LEFT)
     {
         character.SetTopLeft(left - 50, top);
     }
-    if (nChar == 0x44)
+    if (nChar == VK_RIGHT)
     {
         character.SetTopLeft(left + 50, top);
     }
-    if (nChar == 0x57)
+    if (nChar == VK_UP)
     {
         character.SetTopLeft(left, top - 50);
     }
-    if (nChar == 0x53)
+    if (nChar == VK_DOWN)
     {
         character.SetTopLeft(left, top + 50);
     }
+	if (nChar == VK_F1)
+	{
+		ball.ToggleAnimation();
+	}
 
-    if (nChar == VK_RETURN)
+	if (nChar == VK_RETURN)
     {
         if (phase == 1)
         {
@@ -192,6 +199,14 @@ void CGameStateRun::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 void CGameStateRun::OnLButtonDown(UINT nFlags, CPoint point) // �B�z�ƹ����ʧ@
 {
+	POINT p;
+	GetCursorPos(&p);
+	HWND hwnd = FindWindowA(NULL, "Game");
+	ScreenToClient(hwnd, &p);
+	if (character.Left() <= p.x && p.x <= character.Left() + character.Width()
+		&& character.Top() <= p.y && p.y <= character.Top() + character.Height()) {
+		character.IsMovable = !character.IsMovable;
+	}
 }
 
 void CGameStateRun::OnLButtonUp(UINT nFlags, CPoint point) // �B�z�ƹ����ʧ@
@@ -200,6 +215,13 @@ void CGameStateRun::OnLButtonUp(UINT nFlags, CPoint point) // �B�z�ƹ��
 
 void CGameStateRun::OnMouseMove(UINT nFlags, CPoint point) // �B�z�ƹ����ʧ@
 {
+	POINT p;
+	GetCursorPos(&p);
+	HWND hwnd = FindWindowA(NULL, "Game");
+	ScreenToClient(hwnd, &p);
+	if (character.IsMovable) {
+		character.SetTopLeft(p.x - character.Width() / 2, p.y - character.Height() / 2);
+	}	
 }
 
 void CGameStateRun::OnRButtonDown(UINT nFlags, CPoint point) // �B�z�ƹ����ʧ@

@@ -101,6 +101,7 @@ namespace game_framework
         int Width(); // ¨ú±o¹Ï§Îªº¼e«×
         bool IsAnimationDone();
         bool IsAnimation();
+		bool IsMovable;
         int GetMovingBitmapFrame();
         string GetImageFilename();
         COLORREF GetFilterColor();
