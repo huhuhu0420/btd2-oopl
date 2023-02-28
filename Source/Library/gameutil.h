@@ -1,5 +1,5 @@
 /*
- * gamelib.h: 本檔案儲遊戲相關的class的interface
+ * gamelib.h: ¥»ÀÉ®×Àx¹CÀ¸¬ÛÃöªºclassªºinterface
  * Copyright (C) 2002-2008 Woei-Kae Chen <wkc@csie.ntut.edu.tw>
  *
  * This file is part of game, a free game development framework for windows.
@@ -71,88 +71,60 @@
 #include <map>
 using namespace std;
 
-namespace game_framework {
+namespace game_framework
+{
+    /////////////////////////////////////////////////////////////////////////////
+    // ³o­Óclass´£¨Ñ°ÊºA(¥i¥H²¾°Ê)ªº¹Ï§Î
+    // ¨C­ÓPublic Interfaceªº¥Îªk³£­nÀ´¡AImplementation¥i¥H¤£À´
+    /////////////////////////////////////////////////////////////////////////////
 
-	/////////////////////////////////////////////////////////////////////////////
-	// 這個class提供動態(可以移動)的圖形
-	// 每個Public Interface的用法都要懂，Implementation可以不懂
-	/////////////////////////////////////////////////////////////////////////////
+    class CMovingBitmap
+    {
+    public:
+        CMovingBitmap();
+        int Height(); // ¨ú±o¹Ï§Îªº°ª«×
+        int Left(); // ¨ú±o¹Ï§Îªº¥ª¤W¨¤ªº x ®y¼Ð
+        void SetAnimation(int delay, bool _once);
+        void LoadBitmap(int, COLORREF = CLR_INVALID); // ¸ü¤J¹Ï¡A«ü©w¹Ïªº½s¸¹(resource)¤Î³z©ú¦â
+        void LoadBitmap(char*, COLORREF = CLR_INVALID); // ¸ü¤J¹Ï¡A«ü©w¹ÏªºÀÉ¦W¤Î³z©ú¦â
+        void LoadBitmap(vector<char*>, COLORREF = CLR_INVALID); // ¸ü¤J¹Ï¡A«ü©w¹ÏªºÀÉ¦W¤Î³z©ú¦â
+        void LoadBitmapByString(vector<string>, COLORREF = CLR_INVALID); // ¸ü¤J¹Ï¡A«ü©w¹ÏªºÀÉ¦W¤Î³z©ú¦â
+        void UnshowBitmap();
+        void SetTopLeft(int, int); // ±N¹Ïªº¥ª¤W¨¤®y¼Ð²¾¦Ü (x,y)
+        void ShowBitmap(); // ±N¹Ï¶K¨ì¿Ã¹õ
+        void ShowBitmap(double factor);
+        // ±N¹Ï¶K¨ì¿Ã¹õ factor < 1®ÉÁY¤p¡A>1®É©ñ¤j¡Cª`·N¡G»Ý­nVGA¥dµwÅéªº¤ä´©¡A§_«h·|«ÜºC
+        void SelectShowBitmap(int select);
+        int GetSelectShowBitmap();
+        void ToggleAnimation();
+        int Top(); // ¨ú±o¹Ï§Îªº¥ª¤W¨¤ªº y ®y¼Ð
+        int Width(); // ¨ú±o¹Ï§Îªº¼e«×
+        bool IsAnimationDone();
+        bool IsAnimation();
+        int GetMovingBitmapFrame();
+        string GetImageFilename();
+        COLORREF GetFilterColor();
 
-	class CMovingBitmap {
-	public:
-		CMovingBitmap();
+    protected:
+        int selector = 0;
+        int delayCount = 10;
+        int animationCount = -1;
+        clock_t last_time = clock();
+        bool isAnimation = false;
+        bool isAnimationDone = true;
+        bool once = false;
+        vector<unsigned> SurfaceID;
+        COLORREF filter_color;
+        bool isBitmapLoaded = false; // whether a bitmap has been loaded
+        CRect location; // location of the bitmap
+    private:
+        string image_filename;
+    };
 
-		/* The function for loading the bitmap. */
-		void  LoadBitmap(int, COLORREF = CLR_INVALID);		// 載入圖，指定圖的編號(resource)及透明色
-		void  LoadBitmap(char*, COLORREF = CLR_INVALID);	// 載入圖，指定圖的檔名及透明色
-		void  LoadBitmap(vector<char*>, COLORREF = CLR_INVALID);	// 載入圖，指定圖的檔名及透明色
-		void  LoadBitmapByString(vector<string>, COLORREF = CLR_INVALID);	// 載入圖，指定圖的檔名及透明色
-		void  LoadEmptyBitmap(int height, int weight);
-		
-		/* Unshow the bitmap. */
-		void  UnshowBitmap();
-
-		/* Setter */
-		void  SetAnimation(int delay, bool _once);
-		void  SetFrameIndexOfBitmap(int frame);
-		void  SetTopLeft(int, int);			// 將圖的左上角座標移至 (x,y)
-
-		/* Show the bitmap with or without factor. */
-		void  ShowBitmap();					// 將圖貼到螢幕
-		void  ShowBitmap(double factor);	// 將圖貼到螢幕 factor < 1時縮小，>1時放大。注意：需要VGA卡硬體的支援，否則會很慢
-		
-		/* Getter */
-		int   GetFrameIndexOfBitmap();
-		int   GetFrameSizeOfBitmap();
-		int   GetTop();
-		int   GetLeft();
-		int   GetHeight();
-		int   GetWidth();
-		string GetImageFileName();
-		COLORREF GetFilterColor();
-
-		/* Is function */
-		bool  IsAnimation();
-		bool  IsAnimationDone();
-		bool  IsBitmapLoaded();
-		bool  IsOnceAnimation();
-		static bool IsOverlap(CMovingBitmap bmp1, CMovingBitmap bmp2);
-		
-		/* Toggle function */
-		void  ToggleAnimation();
-
-	protected:
-		//! 當前幀的索引值。
-		int frameIndex = 0;
-		//! 當前幀切換的延遲。
-		int delayCount = 10;
-		//! 儲存當前動畫的次數。
-		int animationCount = -1;
-		//! 儲存物件是否為動畫。
-		bool isAnimation = false;
-		//! 儲存物件動畫是否已結束
-		bool isAnimationDone = true;
-		//! 儲存圖片是否已讀取
-		bool isBitmapLoaded = false;	// whether a bitmap has been loaded
-		//! 儲存物件動畫是否為單次動畫
-		bool isOnce = false;
-		CRect    location;			// location of the bitmap
-		vector<unsigned> surfaceID;
-		clock_t last_time = clock();
-		//! 儲存物件讀取的圖片路徑
-		string   imageFileName = "";
-		//! 儲存物件過濾的圖片顏色
-		COLORREF filterColor = CLR_INVALID;
-
-	private:
-		void InitializeRectByBITMAP(BITMAP bitmap);
-		void ShowBitmapBySetting();
-	};
-
-	class CTextDraw {
-	public:
-		void static Print(CDC *pdc, int x, int y, string str);
-		void static ChangeFontLog(CDC *pdc, int size, string fontName, COLORREF fontColor, int weight = 500);
-	};
-
+    class CTextDraw
+    {
+    public:
+        void static Print(CDC* pDC, int x, int y, string str);
+        void static ChangeFontLog(CDC* pDC, CFont* & fp, int size, string fontName, COLORREF color, int weight = 500);
+    };
 }
