@@ -63,7 +63,7 @@ void CGameStateRun::OnInit() // �C������Ȥιϧγ]�w
     });
     background.SetTopLeft(0, 0);
 
-    character.LoadBitmapByString({"resources/giraffe.bmp"});
+    character.LoadBitmapByString({"resources/giraffe.bmp"}, RGB(255, 255, 255);
     character.SetTopLeft(150, 265);
 
     chest_and_key.LoadBitmapByString({"resources/chest.bmp", "resources/chest_ignore.bmp"}, RGB(255, 255, 255));
